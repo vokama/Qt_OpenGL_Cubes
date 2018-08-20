@@ -9,6 +9,8 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 
+#include "cube.h"
+
 class RenderingWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -24,14 +26,12 @@ protected:
     void paintGL();
 
     void initShaders();
-    void initCube(float width);
 
 private:
     QMatrix4x4 m_projectionMatrix;
     QOpenGLShaderProgram m_program;
-    QOpenGLBuffer m_arrayBuffer;
-    QOpenGLBuffer m_indexBuffer;
-    QVector<GLuint> indexes;
+
+    Cube *cube;
 
     int m_step = 0;
 };
