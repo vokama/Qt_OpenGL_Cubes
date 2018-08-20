@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>obsStudio64.bmp</file>
+    </qresource>
+</RCC>
