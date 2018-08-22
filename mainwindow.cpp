@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QGridLayout *renderingLayout = new QGridLayout(ui->RenderingSpace);
-    m_viewport = new RenderingWidget(ui->RenderingSpace);
+    m_viewport = new RenderWidget(ui->RenderingSpace);
     renderingLayout->addWidget(m_viewport);
 }
 

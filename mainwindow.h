@@ -20,7 +20,7 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    RenderingWidget *m_viewport;
+    RenderWidget *m_viewport;
 };
 
 #endif // MAINWINDOW_H
