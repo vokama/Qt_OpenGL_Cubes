@@ -113,6 +113,8 @@ void RenderWidget::mouseReleaseEvent(QMouseEvent *event)
         releaseMouse();
         releaseKeyboard();
 
+        m_camDirection = 0;
+
         QCursor c = cursor();
         c.setPos(m_mouseInitPos);
         this->setCursor(c);

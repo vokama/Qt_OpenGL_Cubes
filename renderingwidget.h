@@ -30,9 +30,9 @@ public:
     ~RenderWidget();
 
 protected:
-    void resizeGL(int w, int h);
-    void initializeGL();
-    void paintGL();
+    void resizeGL(int w, int h) override;
+    void initializeGL() override;
+    void paintGL() override;
 
     void initShaders();
 

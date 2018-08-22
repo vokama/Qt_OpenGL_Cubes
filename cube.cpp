@@ -24,15 +24,15 @@ void Cube::initGraphics()
     float absNormCoord = 1 / sqrt(2);
     QVector<VertexData> vertices;
     // front plane
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() + halfD, m_center.z() - halfD), QVector2D(0, 1), QVector3D(-absNormCoord, +absNormCoord, -absNormCoord)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() + halfD, m_center.z() - halfD), QVector2D(1, 1), QVector3D(+absNormCoord, +absNormCoord, -absNormCoord)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() - halfD, m_center.z() - halfD), QVector2D(1, 0), QVector3D(+absNormCoord, -absNormCoord, -absNormCoord)));
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() - halfD, m_center.z() - halfD), QVector2D(0, 0), QVector3D(-absNormCoord, -absNormCoord, -absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() + halfD, m_center.z() + halfD), QVector2D(0, 1), QVector3D(-absNormCoord, +absNormCoord, -absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() + halfD, m_center.z() + halfD), QVector2D(1, 1), QVector3D(+absNormCoord, +absNormCoord, -absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() - halfD, m_center.z() + halfD), QVector2D(1, 0), QVector3D(+absNormCoord, -absNormCoord, -absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() - halfD, m_center.z() + halfD), QVector2D(0, 0), QVector3D(-absNormCoord, -absNormCoord, -absNormCoord)));
     // back plane
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() + halfD, m_center.z() + halfD), QVector2D(1, 1), QVector3D(-absNormCoord, +absNormCoord, +absNormCoord)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() + halfD, m_center.z() + halfD), QVector2D(0, 1), QVector3D(+absNormCoord, +absNormCoord, +absNormCoord)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() - halfD, m_center.z() + halfD), QVector2D(0, 0), QVector3D(+absNormCoord, -absNormCoord, +absNormCoord)));
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() - halfD, m_center.z() + halfD), QVector2D(1, 0), QVector3D(-absNormCoord, -absNormCoord, +absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() + halfD, m_center.z() - halfD), QVector2D(1, 1), QVector3D(-absNormCoord, +absNormCoord, +absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() + halfD, m_center.z() - halfD), QVector2D(0, 1), QVector3D(+absNormCoord, +absNormCoord, +absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() - halfD, m_center.z() - halfD), QVector2D(0, 0), QVector3D(+absNormCoord, -absNormCoord, +absNormCoord)));
+    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() - halfD, m_center.z() - halfD), QVector2D(1, 0), QVector3D(-absNormCoord, -absNormCoord, +absNormCoord)));
 
     QVector<GLuint> indices;
     // front
