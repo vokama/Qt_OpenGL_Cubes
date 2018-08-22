@@ -39,6 +39,8 @@ void RenderWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    camMove(m_camDirection);
+
     m_program.bind();
     m_program.setUniformValue("qt_ModelViewProjectionMatrix", m_projectionMatrix * m_viewMatrix * m_modelMatrix);
     m_program.setUniformValue("qt_Texture0", 0);
@@ -140,8 +142,6 @@ void RenderWidget::keyPressEvent(QKeyEvent *event)
     default:
         return;
     }
-
-    camMove(m_camDirection);
 }
 
 void RenderWidget::keyReleaseEvent(QKeyEvent *event)
