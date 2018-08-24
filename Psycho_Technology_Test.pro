@@ -33,13 +33,14 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-LIBS += \
-        opengl32.lib
     cube.h \
     renderwidget.h \
     camera.h \
     worldaxis.h \
     vertexdata.h
+
+LIBS += \
+        opengl32.lib
 
 FORMS += \
         mainwindow.ui
