@@ -11,13 +11,14 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 
+#include "camera.h"
 #include "cube.h"
 
-enum CamDirection {
-    camDirectFwd =   1,
-    camDirectBack =  1 << 1,
-    camDirectLeft =  1 << 2,
-    camDirectRight = 1 << 3
+enum moveKeys {
+    keyFwd =   1,
+    keyBack =  1 << 1,
+    keyLeft =  1 << 2,
+    keyRight = 1 << 3
 };
 
 class RenderWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -41,25 +42,31 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
+
+private slots:
+    void processInput();
+
 private:
-    QMatrix4x4 camRotate(QPoint mouseShift);
-    void camMove(int direction);
+    Camera camera;
+
+    int processInputTrigger;
 
     QMatrix4x4 m_projectionMatrix;
     QMatrix4x4 m_modelMatrix;
     QMatrix4x4 m_viewMatrix;
     QOpenGLShaderProgram m_program;
 
-    Cube *m_cube;
+    //Cube *m_cube;
 
     bool m_cameraControl;
+
     QPoint m_mouseInitPos;
     QPoint m_mouseLastPos;
-    int m_camDirection = 0;
+    QPoint m_mouseShift;
+    QVector3D m_camTurn;
 
-    QVector3D m_eye = {0.0f, 0.0f, 0.0f};
-    QVector3D m_center = {0.0f, 0.0f, -5.0f};
-    QVector3D m_up = {0, 1, 0};
+    int m_moveKeysPressed = 0;
+    QVector3D m_camPos;
 };
 
 #endif // RENDERINGWIDGET_H

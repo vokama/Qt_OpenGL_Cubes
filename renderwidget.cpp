@@ -1,14 +1,18 @@
-#include "renderingwidget.h"
+#include "renderwidget.h"
+
+#include "worldaxis.h"
 
 #include <QDesktopWidget>
+#include <QTimer>
 
+#include <math.h>
 #include <iostream>
 
 RenderWidget::RenderWidget(QWidget *parent)
     : QOpenGLWidget(parent)
 {
     m_modelMatrix.setToIdentity();
-    m_modelMatrix.translate(0.0f, 0.0f, -5.0f);
+    m_modelMatrix.translate(-5.0f, -5.0f, -5.0f);
 }
 
 RenderWidget::~RenderWidget()
@@ -24,7 +28,6 @@ void RenderWidget::initializeGL()
     glEnable(GL_CULL_FACE);
 
     initShaders();
-    m_cube = new Cube();
 }
 
 void RenderWidget::resizeGL(int w, int h)
@@ -32,20 +35,27 @@ void RenderWidget::resizeGL(int w, int h)
     float aspect = w / (float)h;
 
     m_projectionMatrix.setToIdentity();
-    m_projectionMatrix.perspective(45.0f, aspect, 0.1f, 10.0f);
+    m_projectionMatrix.perspective(45.0f, aspect, 0.1f, 100.0f);
 }
 
 void RenderWidget::paintGL()
 {
+    processInput();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    camMove(m_camDirection);
+    //Cube cube;
+    WorldAxis worldAxis;
+
+    m_viewMatrix.setToIdentity();
+    m_viewMatrix = camera.move(m_camPos) * m_viewMatrix;
+    m_viewMatrix = camera.rotate(m_camTurn) * m_viewMatrix;
 
     m_program.bind();
     m_program.setUniformValue("qt_ModelViewProjectionMatrix", m_projectionMatrix * m_viewMatrix * m_modelMatrix);
     m_program.setUniformValue("qt_Texture0", 0);
 
-    m_cube->m_arrayBuffer.bind();
+//    m_cube->m_arrayBuffer.bind();
 
     int offset = 0;
 
@@ -59,9 +69,13 @@ void RenderWidget::paintGL()
     m_program.enableAttributeArray(texLoc);
     m_program.setAttributeBuffer(texLoc, GL_FLOAT, offset, 2, sizeof(VertexData));
 
-    m_cube->m_indexBuffer.bind();
+//    m_cube->m_indexBuffer.bind();
 
-    glDrawElements(GL_TRIANGLES, m_cube->m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+//    glDrawElements(GL_TRIANGLES, cube.m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, worldAxis.m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+
+//    m_cube->m_arrayBuffer.release();
+//    m_cube->m_indexBuffer.release();
 
     update();
 }
@@ -85,7 +99,7 @@ void RenderWidget::mousePressEvent(QMouseEvent *event)
 
         grabMouse();
         grabKeyboard();
-        this->setCursor(Qt::BlankCursor);
+        //this->setCursor(Qt::BlankCursor);
 
         m_mouseLastPos = m_mouseInitPos = event->globalPos();
     }
@@ -98,9 +112,8 @@ void RenderWidget::mouseMoveEvent(QMouseEvent *event)
 
     QPoint mouseCurrentPos = event->globalPos();
 
-    //rotateCamera(mouseCurrentPos - m_mouseLastPos);
+    m_mouseShift = mouseCurrentPos - m_mouseLastPos;
 
-  //  m_viewMatrix = camRotate(mouseCurrentPos - m_mouseLastPos) * m_viewMatrix;
     m_mouseLastPos = mouseCurrentPos;
 }
 
@@ -113,7 +126,7 @@ void RenderWidget::mouseReleaseEvent(QMouseEvent *event)
         releaseMouse();
         releaseKeyboard();
 
-        m_camDirection = 0;
+        m_moveKeysPressed = 0;
 
         QCursor c = cursor();
         c.setPos(m_mouseInitPos);
@@ -130,16 +143,28 @@ void RenderWidget::keyPressEvent(QKeyEvent *event)
 
     switch (curKey) {
     case Qt::Key_W:
-        m_camDirection |= camDirectFwd;
+        m_moveKeysPressed |= keyFwd;
         break;
     case Qt::Key_A:
-        m_camDirection |= camDirectLeft;
+        m_moveKeysPressed |= keyLeft;
         break;
     case Qt::Key_S:
-        m_camDirection |= camDirectBack;
+        m_moveKeysPressed |= keyBack;
         break;
     case Qt::Key_D:
-        m_camDirection |= camDirectRight;
+        m_moveKeysPressed |= keyRight;
+        break;
+    case Qt::Key_Right:
+        m_mouseShift.setX(10);
+        break;
+    case Qt::Key_Left:
+        m_mouseShift.setX(-10);
+        break;
+    case Qt::Key_Up:
+        m_mouseShift.setY(-10);
+        break;
+    case Qt::Key_Down:
+        m_mouseShift.setY(10);
         break;
     default:
         return;
@@ -155,59 +180,58 @@ void RenderWidget::keyReleaseEvent(QKeyEvent *event)
 
     switch (curKey) {
     case Qt::Key_W:
-        m_camDirection &= ~camDirectFwd;
+        m_moveKeysPressed &= ~keyFwd;
         break;
     case Qt::Key_A:
-        m_camDirection &= ~camDirectLeft;
+        m_moveKeysPressed &= ~keyLeft;
         break;
     case Qt::Key_S:
-        m_camDirection &= ~camDirectBack;
+        m_moveKeysPressed &= ~keyBack;
         break;
     case Qt::Key_D:
-        m_camDirection &= ~camDirectRight;
+        m_moveKeysPressed &= ~keyRight;
         break;
     default:
         break;
     }
 }
 
-QMatrix4x4 RenderWidget::camRotate(QPoint mouseShift)
+void RenderWidget::processInput()
 {
-    QVector3D shiftVec(mouseShift);
-    shiftVec = -shiftVec;
+    float turnSpeed = 0.1f;
+    float moveSpeed = 0.1f;
 
-    QMatrix4x4 rot;
-    rot.rotate(shiftVec.x(), 0, 1, 0);
-    rot.rotate(shiftVec.y(), 1, 0, 0);
+    m_camTurn += QVector3D(m_mouseShift.y(), m_mouseShift.x(), 0) * turnSpeed;
+    if (m_camTurn.x() > 90) {
+        m_camTurn.setX(90);
+    } else if (m_camTurn.x() < -90) {
+        m_camTurn.setX(-90);
+    }
 
-//    m_eye = rot * m_eye;
-//    m_up = rot * m_up;
+    QVector3D move;
+    if (m_moveKeysPressed & keyFwd)
+        move.setZ(move.z() + 1);
+    if(m_moveKeysPressed & keyBack)
+        move.setZ(move.z() - 1);
+    if(m_moveKeysPressed & keyRight)
+        move.setX(move.x() - 1);
+    if(m_moveKeysPressed & keyLeft)
+        move.setX(move.x() + 1);
+    move *= moveSpeed;
 
-    QMatrix4x4 cameraTransform;
-    cameraTransform.lookAt(m_eye, m_center, m_up);
-    return cameraTransform;
-}
+    /* применяем текущий поворот камеры */
+    float xTurnRad = m_camTurn.x() * M_PI / 180.0f;
+    float yTurnRad = m_camTurn.y() * M_PI / 180.0f;
+    QVector3D rotatedMove;
+    rotatedMove.setX(move.x() * cos(yTurnRad) + move.z() * -sin(yTurnRad) * cos(xTurnRad)); //move.z * sqrt(2)/2
+    rotatedMove.setY(move.z() * sin(xTurnRad));
+    rotatedMove.setZ(move.z() * cos(yTurnRad) * cos(xTurnRad) + move.x() * sin(yTurnRad)); //move.z * sqrt(2)/2
 
-void RenderWidget::camMove(int direction)
-{
-    if (!direction)
-        return;
+    m_camPos += rotatedMove;
 
-    float step = 0.01f;
-    QVector3D moveVec;
-    if (direction & camDirectFwd)
-        moveVec += QVector3D(0, 0, -step);
-    if (direction & camDirectBack)
-        moveVec += QVector3D(0, 0, step);
-    if (direction & camDirectLeft)
-        moveVec += QVector3D(-step, 0, 0);
-    if (direction & camDirectRight)
-        moveVec += QVector3D(step, 0, 0);
-
-    QMatrix4x4 cameraTransform;
-    cameraTransform.lookAt(m_eye + moveVec, m_center + moveVec, m_up);
-
-    m_viewMatrix = cameraTransform * m_viewMatrix;
+    std::cout << m_camTurn.x() << ' ' << m_camTurn.y() << std::endl;
+    std::cout << m_camPos.x() << ' ' << m_camPos.y() << ' ' << m_camPos.z() << std::endl << std::endl;
+    m_mouseShift = QPoint();
 }
 
 //void RenderWidget::rotateCamera(const QPoint mouseShift)

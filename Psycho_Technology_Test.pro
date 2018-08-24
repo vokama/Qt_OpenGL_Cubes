@@ -26,16 +26,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    renderingwidget.cpp \
-    cube.cpp
+    cube.cpp \
+    renderwidget.cpp \
+    camera.cpp \
+    worldaxis.cpp
 
 HEADERS += \
         mainwindow.h \
-    renderingwidget.h \
-    cube.h
-
 LIBS += \
         opengl32.lib
+    cube.h \
+    renderwidget.h \
+    camera.h \
+    worldaxis.h \
+    vertexdata.h
 
 FORMS += \
         mainwindow.ui

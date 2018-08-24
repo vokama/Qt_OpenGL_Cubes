@@ -7,7 +7,22 @@ Cube::Cube(QVector3D center, QVector3D rotation, float dimension)
       m_arrayBuffer(QOpenGLBuffer::VertexBuffer),
       m_indexBuffer(QOpenGLBuffer::IndexBuffer)
 {
+    m_arrayBuffer.create();
+    m_arrayBuffer.bind();
+
+    m_indexBuffer.create();
+    m_indexBuffer.bind();
+
     initGraphics();
+}
+
+Cube::~Cube()
+{
+    m_arrayBuffer.release();
+    m_arrayBuffer.destroy();
+
+    m_indexBuffer.release();
+    m_indexBuffer.destroy();
 }
 
 void Cube::reset(QVector3D center, QVector3D rotation)
@@ -77,13 +92,6 @@ void Cube::initGraphics()
     indices.append(6);
     indices.append(7);
 
-    m_arrayBuffer.create();
-    m_arrayBuffer.bind();
     m_arrayBuffer.allocate(vertices.constData(), vertices.size() * sizeof(vertices[0]));
-    m_arrayBuffer.release();
-
-    m_indexBuffer.create();
-    m_indexBuffer.bind();
     m_indexBuffer.allocate(indices.constData(), indices.size() * sizeof(indices[0]));
-    m_indexBuffer.release();
 }
