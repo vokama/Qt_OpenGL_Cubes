@@ -9,6 +9,8 @@
 #include <math.h>
 #include <iostream>
 
+#include <time.h>
+
 RenderWidget::RenderWidget(QWidget *parent)
     : QOpenGLWidget(parent)
 {
@@ -17,7 +19,10 @@ RenderWidget::RenderWidget(QWidget *parent)
 }
 
 RenderWidget::~RenderWidget()
-{}
+{
+    renderTime = time(NULL) - renderTime;
+    std::cout << framesCount / renderTime << std::endl;
+}
 
 void RenderWidget::initializeGL()
 {
@@ -29,6 +34,8 @@ void RenderWidget::initializeGL()
     glEnable(GL_CULL_FACE);
 
     initShaders();
+
+    renderTime = time(NULL);
 }
 
 void RenderWidget::resizeGL(int w, int h)
@@ -79,6 +86,8 @@ void RenderWidget::paintGL()
 //    m_cube->m_indexBuffer.release();
 
     update();
+
+    framesCount++;
 }
 
 void RenderWidget::initShaders()

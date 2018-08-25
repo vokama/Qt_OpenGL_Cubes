@@ -58,6 +58,9 @@ private:
 
     //Cube *m_cube;
 
+    time_t renderTime;
+    int framesCount = 0;
+
     bool m_cameraControl;
 
     QPoint m_mouseInitPos;
