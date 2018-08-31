@@ -1,4 +1,4 @@
-uniform sampler2D qt_Texture0;
+#version 330
 
 void main(void)
 {

@@ -7,91 +7,90 @@ Cube::Cube(QVector3D center, QVector3D rotation, float dimension)
       m_arrayBuffer(QOpenGLBuffer::VertexBuffer),
       m_indexBuffer(QOpenGLBuffer::IndexBuffer)
 {
+    initializeOpenGLFunctions();
+
     m_arrayBuffer.create();
     m_arrayBuffer.bind();
+    m_arrayBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_arrayBuffer.allocate(cubeVertices, sizeof(cubeVertices));
+    m_arrayBuffer.release();
 
     m_indexBuffer.create();
     m_indexBuffer.bind();
+    m_indexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_indexBuffer.allocate(cubeIndices, sizeof(cubeIndices));
+    m_indexBuffer.release();
 
-    initGraphics();
+    m_instanceBuf.create();
+    m_instanceBuf.bind();
+    m_instanceBuf.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    m_instanceBuf.allocate(m_instanceBufSize);
+    m_instanceBuf.release();
 }
 
 Cube::~Cube()
 {
-    m_arrayBuffer.release();
     m_arrayBuffer.destroy();
-
-    m_indexBuffer.release();
     m_indexBuffer.destroy();
+    m_instanceBuf.destroy();
 }
 
-void Cube::reset(QVector3D center, QVector3D rotation)
+void Cube::draw(QOpenGLShaderProgram& program)
 {
-    m_center = center;
-    m_rotation = rotation;
+    m_arrayBuffer.bind();
+    int vertLoc = 0;
+    program.enableAttributeArray(vertLoc);
+    program.setAttributeBuffer(vertLoc, GL_FLOAT, 0, 3, sizeof(VertexData));
+    m_arrayBuffer.release();
 
-    initGraphics();
+    m_instanceBuf.bind();
+
+    int offset = 0;
+
+    int centerLoc = 1;
+    program.enableAttributeArray(centerLoc);
+    program.setAttributeBuffer(centerLoc, GL_FLOAT, offset, 3, sizeof(CubeInstance));
+    glVertexAttribDivisor(centerLoc, 1);
+    offset += 3 * sizeof(float);
+
+    int modelMatLoc = 2;
+    for (int i = 0; i < 4; i++) {
+        program.enableAttributeArray(modelMatLoc + i);
+        program.setAttributeBuffer(modelMatLoc + i, GL_FLOAT, offset, 4, sizeof(CubeInstance));
+        glVertexAttribDivisor(modelMatLoc + i, 1);
+
+        offset += 4 * sizeof(float);
+    }
+
+    m_instanceBuf.release();
+
+    m_indexBuffer.bind();
+    glDrawElementsInstanced(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_BYTE, 0, m_instances.size());
+    m_indexBuffer.release();
 }
 
-void Cube::initGraphics()
+void Cube::addInstance(const CubeInstance& instance)
 {
-    float halfD = m_dimension / 2.0f;
-    QVector<VertexData> vertices;
-    // front plane
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() + halfD, m_center.z() + halfD), QVector2D(0, 1)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() + halfD, m_center.z() + halfD), QVector2D(1, 1)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() - halfD, m_center.z() + halfD), QVector2D(1, 0)));
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() - halfD, m_center.z() + halfD), QVector2D(0, 0)));
-    // back plane
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() + halfD, m_center.z() - halfD), QVector2D(1, 1)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() + halfD, m_center.z() - halfD), QVector2D(0, 1)));
-    vertices.append(VertexData(QVector3D(m_center.x() + halfD, m_center.y() - halfD, m_center.z() - halfD), QVector2D(0, 0)));
-    vertices.append(VertexData(QVector3D(m_center.x() - halfD, m_center.y() - halfD, m_center.z() - halfD), QVector2D(1, 0)));
+    m_instances.push_back(instance);
 
-    QVector<GLuint> indices;
-    // front
-    indices.append(0);
-    indices.append(2);
-    indices.append(1);
-    indices.append(0);
-    indices.append(3);
-    indices.append(2);
-    // left
-    indices.append(4);
-    indices.append(3);
-    indices.append(0);
-    indices.append(4);
-    indices.append(7);
-    indices.append(3);
-    // right
-    indices.append(1);
-    indices.append(6);
-    indices.append(5);
-    indices.append(1);
-    indices.append(2);
-    indices.append(6);
-    // top
-    indices.append(4);
-    indices.append(1);
-    indices.append(5);
-    indices.append(4);
-    indices.append(0);
-    indices.append(1);
-    // bottom
-    indices.append(3);
-    indices.append(6);
-    indices.append(2);
-    indices.append(3);
-    indices.append(7);
-    indices.append(6);
-    // back
-    indices.append(5);
-    indices.append(7);
-    indices.append(4);
-    indices.append(5);
-    indices.append(6);
-    indices.append(7);
+    m_instanceBuf.bind();
 
-    m_arrayBuffer.allocate(vertices.constData(), vertices.size() * sizeof(vertices[0]));
-    m_indexBuffer.allocate(indices.constData(), indices.size() * sizeof(indices[0]));
+    if (m_instances.size() * sizeof(m_instances[0]) > m_instanceBufSize) {
+        m_instanceBufSize *= 2;
+        m_instanceBuf.allocate(m_instances.data(), m_instanceBufSize);
+    } else {
+        auto bufPtr = m_instanceBuf.mapRange(
+                    (m_instances.size() - 1) * sizeof(m_instances[0]),
+                    sizeof(m_instances[0]),
+                    QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
+        memcpy(bufPtr, &(m_instances.back()), sizeof(m_instances.back()));
+        m_instanceBuf.unmap();
+    }
+
+    m_instanceBuf.release();
+}
+
+void Cube::removeInstance(int idx)
+{
+
 }

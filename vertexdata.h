@@ -10,15 +10,14 @@ public:
     VertexData()
     {}
 
-    VertexData(QVector3D p, QVector2D t)
-        : position(p), texCoord(t)
+    VertexData(QVector3D p)
+        : position(p)
     {}
 
     ~VertexData()
     {}
 
     QVector3D position;
-    QVector2D texCoord;
 };
 
 #endif // VERTEXDATA_H

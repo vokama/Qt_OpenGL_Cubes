@@ -39,9 +39,6 @@ HEADERS += \
     worldaxis.h \
     vertexdata.h
 
-LIBS += \
-        opengl32.lib
-
 FORMS += \
         mainwindow.ui
 

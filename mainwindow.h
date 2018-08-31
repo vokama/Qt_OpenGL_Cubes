@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QListWidgetItem>
 
 #include "renderwidget.h"
 
@@ -16,6 +17,10 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+public slots:
+    void addObject();
+    void selectObject(QListWidgetItem *curObj, QListWidgetItem *prevObj);
 
 private:
     Ui::MainWindow *ui;

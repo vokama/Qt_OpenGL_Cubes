@@ -7,7 +7,7 @@
 #include <QVector2D>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_3_3_Core>
 #include <QMouseEvent>
 #include <QKeyEvent>
 
@@ -21,7 +21,7 @@ enum moveKeys {
     keyRight = 1 << 3
 };
 
-class RenderWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class RenderWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 {
     Q_OBJECT
 
@@ -46,17 +46,16 @@ protected:
 private slots:
     void processInput();
 
+public:
+    Cube *m_cube;
+
 private:
     Camera camera;
-
-    int processInputTrigger;
 
     QMatrix4x4 m_projectionMatrix;
     QMatrix4x4 m_modelMatrix;
     QMatrix4x4 m_viewMatrix;
     QOpenGLShaderProgram m_program;
-
-    //Cube *m_cube;
 
     time_t renderTime;
     int framesCount = 0;

@@ -6,18 +6,7 @@ WorldAxis::WorldAxis()
     : m_arrayBuffer(QOpenGLBuffer::VertexBuffer),
       m_indexBuffer(QOpenGLBuffer::IndexBuffer)
 {
-    m_arrayBuffer.create();
-    m_arrayBuffer.bind();
-
-    m_indexBuffer.create();
-    m_indexBuffer.bind();
-
-    initGraphics();
-}
-
-void WorldAxis::initGraphics()
-{
-    QVector<VertexData> vertices;
+/*    QVector<VertexData> vertices;
     QVector<GLuint> indices;
 
     float Width = 0.5f;
@@ -103,6 +92,26 @@ void WorldAxis::initGraphics()
         indices.append(2 + i);
     }
 
+    m_arrayBuffer.create();
+    m_indexBuffer.create();
+
+    m_arrayBuffer.bind();
+    m_indexBuffer.bind();
+
     m_arrayBuffer.allocate(vertices.constData(), vertices.size() * sizeof(vertices[0]));
     m_indexBuffer.allocate(indices.constData(), indices.size() * sizeof(indices[0]));
+*/}
+
+WorldAxis::~WorldAxis()
+{
+/*    m_arrayBuffer.release();
+    m_indexBuffer.release();
+
+    m_arrayBuffer.destroy();
+    m_arrayBuffer.destroy();
+*/}
+
+void WorldAxis::draw()
+{
+    //glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 }

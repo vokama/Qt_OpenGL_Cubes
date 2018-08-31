@@ -9,12 +9,12 @@ class WorldAxis
 {
 public:
     WorldAxis();
+    ~WorldAxis();
 
     QOpenGLBuffer m_arrayBuffer;
     QOpenGLBuffer m_indexBuffer;
 
-private:
-    void initGraphics();
+    void draw();
 };
 
 #endif // WORLDAXIS_H

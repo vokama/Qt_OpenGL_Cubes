@@ -34,7 +34,7 @@ void RenderWidget::initializeGL()
     glEnable(GL_CULL_FACE);
 
     initShaders();
-
+    m_cube = new Cube(QVector3D(5, 5, 5));
     renderTime = time(NULL);
 }
 
@@ -43,7 +43,7 @@ void RenderWidget::resizeGL(int w, int h)
     float aspect = w / (float)h;
 
     m_projectionMatrix.setToIdentity();
-    m_projectionMatrix.perspective(45.0f, aspect, 0.1f, 100.0f);
+    m_projectionMatrix.perspective(45.0f, aspect, 0.1f, 1000.0f);
 }
 
 void RenderWidget::paintGL()
@@ -52,42 +52,21 @@ void RenderWidget::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //Cube cube;
-    WorldAxis worldAxis;
+    //WorldAxis worldAxis;
+
+    //worldAxis.draw();
 
     m_viewMatrix.setToIdentity();
     m_viewMatrix = camera.move(m_camPos) * m_viewMatrix;
     m_viewMatrix = camera.rotate(m_camTurn) * m_viewMatrix;
 
-    m_program.bind();
-    m_program.setUniformValue("qt_ModelViewProjectionMatrix", m_projectionMatrix * m_viewMatrix * m_modelMatrix);
-    m_program.setUniformValue("qt_Texture0", 0);
+    m_program.setUniformValue("qt_ViewProjectionMatrix", m_projectionMatrix * m_viewMatrix);
 
-//    m_cube->m_arrayBuffer.bind();
-
-    int offset = 0;
-
-    int vertLoc = m_program.attributeLocation("qt_Vertex");
-    m_program.enableAttributeArray(vertLoc);
-    m_program.setAttributeBuffer(vertLoc, GL_FLOAT, offset, 3, sizeof(VertexData));
-
-    offset += sizeof(QVector3D);
-
-    int texLoc = m_program.attributeLocation("qt_MultiTexCoord0");
-    m_program.enableAttributeArray(texLoc);
-    m_program.setAttributeBuffer(texLoc, GL_FLOAT, offset, 2, sizeof(VertexData));
-
-//    m_cube->m_indexBuffer.bind();
-
-//    glDrawElements(GL_TRIANGLES, cube.m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_TRIANGLES, worldAxis.m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
-
-//    m_cube->m_arrayBuffer.release();
-//    m_cube->m_indexBuffer.release();
-
-    update();
+    m_cube->draw(m_program);
 
     framesCount++;
+
+    update();
 }
 
 void RenderWidget::initShaders()
@@ -99,6 +78,9 @@ void RenderWidget::initShaders()
         close();
 
     if (!m_program.link())
+        close();
+
+    if (!m_program.bind())
         close();
 }
 
@@ -233,9 +215,9 @@ void RenderWidget::processInput()
     float xTurnRad = m_camTurn.x() * M_PI / 180.0f;
     float yTurnRad = m_camTurn.y() * M_PI / 180.0f;
     QVector3D rotatedMove;
-    rotatedMove.setX(move.x() * cos(yTurnRad) + move.z() * -sin(yTurnRad) * cos(xTurnRad)); //move.z * sqrt(2)/2
+    rotatedMove.setX(move.x() * cos(yTurnRad) + move.z() * -sin(yTurnRad) * cos(xTurnRad));
     rotatedMove.setY(move.z() * sin(xTurnRad));
-    rotatedMove.setZ(move.z() * cos(yTurnRad) * cos(xTurnRad) + move.x() * sin(yTurnRad)); //move.z * sqrt(2)/2
+    rotatedMove.setZ(move.z() * cos(yTurnRad) * cos(xTurnRad) + move.x() * sin(yTurnRad));
 
     m_camPos += rotatedMove;
 
