@@ -72,7 +72,6 @@ void RenderWidget::mousePressEvent(QMouseEvent *event)
 
         grabMouse();
         grabKeyboard();
-        //this->setCursor(Qt::BlankCursor);
 
         m_mouseLastPos = m_mouseInitPos = event->globalPos();
     }

@@ -255,28 +255,28 @@
        <item>
         <widget class="QPushButton" name="AddObject">
          <property name="text">
-          <string>Добавить объект</string>
+          <string>Создать объект</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="RemoveObject">
          <property name="text">
-          <string>Удалить объект</string>
+          <string>Удалить выбранный объект</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="MoveObject">
          <property name="text">
-          <string>Передвинуть объект</string>
+          <string>Переместить выбранный объект</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="RotateObject">
          <property name="text">
-          <string>Повернуть объект</string>
+          <string>Повернуть выбранный объект</string>
          </property>
         </widget>
        </item>
