@@ -114,7 +114,22 @@ void Cube::addInstance(const CubeInstance& instance)
 
 void Cube::removeInstance(int idx)
 {
+    m_instances.erase(m_instances.begin() + idx);
 
+    if (idx >= m_instances.size()) {
+        m_highlightedInst = -1;
+        return;
+    }
+
+    m_instanceBuf.bind();
+
+    auto bufPtr = m_instanceBuf.mapRange(idx * sizeof(m_instances[0]),
+                                         (m_instances.size() - idx) * sizeof(m_instances[0]),
+                                         QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
+    memcpy(bufPtr, &(m_instances[idx]), (m_instances.size() - idx) * sizeof(m_instances[0]));
+    m_instanceBuf.unmap();
+
+    m_instanceBuf.release();
 }
 
 void Cube::selectInstance(int idx)

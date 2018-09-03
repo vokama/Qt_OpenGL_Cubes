@@ -206,17 +206,3 @@ void RenderWidget::processInput()
     std::cout << m_camPos.x() << ' ' << m_camPos.y() << ' ' << m_camPos.z() << std::endl << std::endl;
     m_mouseShift = QPoint();
 }
-
-//void RenderWidget::rotateCamera(const QPoint mouseShift)
-//{
-//    QVector3D shiftVec(mouseShift);
-//    shiftVec.setY(-shiftVec.y());  // координаты экрана отсчитываются с левого верхнего угла
-
-//    QMatrix4x4 normalMat;
-//    normalMat.rotate(90, 0.0, 0.0, 1.0);
-//    QVector3D normal = normalMat * shiftVec;
-
-//    std::cout << mouseShift.x() << ' ' << mouseShift.y() << '\n';
-//    std::cout << normal.x() << ' ' << normal.y() << "\n\n";
-//    m_viewMatrix.rotate(shiftVec.length(), normal);
-//}

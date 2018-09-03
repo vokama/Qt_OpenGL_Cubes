@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->AddObject, SIGNAL(clicked()), this, SLOT(addObject()));
     QObject::connect(ui->CubesList, SIGNAL(currentRowChanged(int)),
                      this, SLOT(selectObject(int)));
+    QObject::connect(ui->RemoveObject, SIGNAL(clicked()), this, SLOT(removeObject()));
 
     srand(time(NULL));
 }
@@ -30,7 +31,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::addObject()
 {
-    std::string cubeName = std::to_string(ui->CubesList->count());
+    static int objID = 0;
+    std::string cubeName = std::to_string(objID++);
     QListWidgetItem *cubeItem = new QListWidgetItem(cubeName.c_str(), ui->CubesList);
 
     QVector3D turn(rand() % 360, rand() % 360, rand() % 360);
@@ -56,6 +58,9 @@ void MainWindow::addObject()
 
 void MainWindow::selectObject(int row)
 {
+    if (row < 0)
+        return;
+
     m_viewport->m_cube->selectInstance(row);
 
     QListWidgetItem *curObj = ui->CubesList->item(row);
@@ -73,4 +78,15 @@ void MainWindow::selectObject(int row)
     ui->Vertex6Value->setText(VEC_TO_STR(qvariant_cast<QVector3D>(displayData.at(6))));
     ui->Vertex7Value->setText(VEC_TO_STR(qvariant_cast<QVector3D>(displayData.at(7))));
     ui->Vertex8Value->setText(VEC_TO_STR(qvariant_cast<QVector3D>(displayData.at(8))));
+}
+
+void MainWindow::removeObject()
+{
+    int row = ui->CubesList->currentRow();
+    if (row < 0)
+        return;
+
+    m_viewport->m_cube->removeInstance(row);
+
+    delete ui->CubesList->item(row);
 }

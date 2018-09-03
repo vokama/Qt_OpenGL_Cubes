@@ -21,6 +21,7 @@ public:
 public slots:
     void addObject();
     void selectObject(int row);
+    void removeObject();
 
 private:
     Ui::MainWindow *ui;
