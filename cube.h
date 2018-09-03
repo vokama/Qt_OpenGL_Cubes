@@ -51,7 +51,7 @@ public:
     void removeInstance(int idx);
     void selectInstance(int idx);
     void setInstanceRotation(int idx, const QMatrix4x4& rot);
-    void moveInstance(int idx);
+    void setInstancePosition(int idx, QVector3D pos);
 
     const CubeInstance& getInstance(int idx);
 

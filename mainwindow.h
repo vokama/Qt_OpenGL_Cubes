@@ -23,6 +23,7 @@ public slots:
     void selectObject(int row);
     void removeObject();
     void rotateObject();
+    void moveObject();
 
 private:
     void refreshObjectInfo(const QListWidgetItem *object);

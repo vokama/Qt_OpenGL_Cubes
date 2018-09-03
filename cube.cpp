@@ -161,7 +161,16 @@ void Cube::setInstanceRotation(int idx, const QMatrix4x4& rot)
     m_instanceBuf.release();
 }
 
-void Cube::moveInstance(int idx)
+void Cube::setInstancePosition(int idx, QVector3D pos)
 {
+    m_instances[idx].center = pos;
 
+    m_instanceBuf.bind();
+
+    update_VRAM_Range(m_instanceBuf,
+            idx * sizeof(m_instances[0]) + offsetof(CubeInstance, center),
+            sizeof(QVector3D),
+            &(m_instances[idx].center));
+
+    m_instanceBuf.release();
 }

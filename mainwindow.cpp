@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
                      this, SLOT(selectObject(int)));
     QObject::connect(ui->RemoveObject, SIGNAL(clicked()), this, SLOT(removeObject()));
     QObject::connect(ui->RotateObject, SIGNAL(clicked()), this, SLOT(rotateObject()));
+    QObject::connect(ui->MoveObject, SIGNAL(clicked()), this, SLOT(moveObject()));
 
     srand(time(NULL));
 }
@@ -116,6 +117,32 @@ void MainWindow::rotateObject()
     displayData.append(inst.center);
     for (size_t i = 0; i < cubeVertexCount; i++) {
         displayData.append(inst.center + rot * cubeVertices[i]);
+    }
+
+    cubeItem->setData(QListWidgetItem::UserType, displayData);
+
+    refreshObjectInfo(cubeItem);
+}
+
+void MainWindow::moveObject()
+{
+    int row = ui->CubesList->currentRow();
+    if (row < 0)
+        return;
+
+    QVector3D pos(1.0f, 0.0f, 0.0f);
+
+    QListWidgetItem *cubeItem = ui->CubesList->item(row);
+
+    CubeInstance inst = m_viewport->m_cube->getInstance(row);
+    pos += inst.center;
+
+    m_viewport->m_cube->setInstancePosition(row, pos);
+
+    QList<QVariant> displayData;
+    displayData.append(pos);
+    for (size_t i = 0; i < cubeVertexCount; i++) {
+        displayData.append(pos + inst.rotation * cubeVertices[i]);
     }
 
     cubeItem->setData(QListWidgetItem::UserType, displayData);
