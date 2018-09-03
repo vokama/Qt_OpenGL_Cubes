@@ -51,6 +51,7 @@ void Cube::draw(const QMatrix4x4& viewProjectionMatrix)
     m_program.bind();
 
     m_program.setUniformValue("viewProjectionMatrix", viewProjectionMatrix);
+    m_program.setUniformValue("highlightedInst", m_highlightedInst);
 
     m_arrayBuffer.bind();
     int vertLoc = 0;
@@ -114,4 +115,9 @@ void Cube::addInstance(const CubeInstance& instance)
 void Cube::removeInstance(int idx)
 {
 
+}
+
+void Cube::selectInstance(int idx)
+{
+    m_highlightedInst = idx;
 }

@@ -59,6 +59,7 @@ private:
     QOpenGLShaderProgram m_program;
     std::vector<CubeInstance> m_instances;
     int m_instanceBufSize = 128 * sizeof(m_instances[0]);
+    int m_highlightedInst;
 };
 
 #endif // CUBE_H

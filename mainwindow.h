@@ -20,7 +20,7 @@ public:
 
 public slots:
     void addObject();
-    void selectObject(QListWidgetItem *curObj, QListWidgetItem *prevObj);
+    void selectObject(int row);
 
 private:
     Ui::MainWindow *ui;

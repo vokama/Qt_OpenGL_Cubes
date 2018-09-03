@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->CubesList->setSelectionMode(QAbstractItemView::SingleSelection);
 
     QObject::connect(ui->AddObject, SIGNAL(clicked()), this, SLOT(addObject()));
-    QObject::connect(ui->CubesList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-                     this, SLOT(selectObject(QListWidgetItem*, QListWidgetItem*)));
+    QObject::connect(ui->CubesList, SIGNAL(currentRowChanged(int)),
+                     this, SLOT(selectObject(int)));
 
     srand(time(NULL));
 }
@@ -52,10 +52,14 @@ void MainWindow::addObject()
     cubeItem->setData(QListWidgetItem::UserType, displayData);
 }
 
-#define VEC_TO_STR(vec) QString("%1 %2 %3").arg((vec)[0]).arg((vec)[1]).arg((vec)[2])
+#define VEC_TO_STR(vec) QString("%1  %2  %3").arg((vec)[0]).arg((vec)[1]).arg((vec)[2])
 
-void MainWindow::selectObject(QListWidgetItem *curObj, QListWidgetItem *prevObj)
+void MainWindow::selectObject(int row)
 {
+    m_viewport->m_cube->selectInstance(row);
+
+    QListWidgetItem *curObj = ui->CubesList->item(row);
+
     QList<QVariant> displayData = curObj->data(QListWidgetItem::UserType).toList();
 
     QVector3D center = qvariant_cast<QVector3D>(displayData.at(0));
@@ -69,6 +73,4 @@ void MainWindow::selectObject(QListWidgetItem *curObj, QListWidgetItem *prevObj)
     ui->Vertex6Value->setText(VEC_TO_STR(qvariant_cast<QVector3D>(displayData.at(6))));
     ui->Vertex7Value->setText(VEC_TO_STR(qvariant_cast<QVector3D>(displayData.at(7))));
     ui->Vertex8Value->setText(VEC_TO_STR(qvariant_cast<QVector3D>(displayData.at(8))));
-
-    Q_UNUSED(prevObj);
 }
