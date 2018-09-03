@@ -1,13 +1,12 @@
 #include "cube.h"
 
-Cube::Cube(QVector3D center, QVector3D rotation, float dimension)
-    : m_center(center),
-      m_rotation(rotation),
-      m_dimension(dimension),
-      m_arrayBuffer(QOpenGLBuffer::VertexBuffer),
+Cube::Cube()
+    : m_arrayBuffer(QOpenGLBuffer::VertexBuffer),
       m_indexBuffer(QOpenGLBuffer::IndexBuffer)
 {
     initializeOpenGLFunctions();
+
+    initShaders();
 
     m_arrayBuffer.create();
     m_arrayBuffer.bind();
@@ -35,12 +34,28 @@ Cube::~Cube()
     m_instanceBuf.destroy();
 }
 
-void Cube::draw(QOpenGLShaderProgram& program)
+void Cube::initShaders()
 {
+    if (!m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/cube.vert"))
+        exit(EXIT_FAILURE);
+
+    if (!m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment.frag"))
+        exit(EXIT_FAILURE);
+
+    if (!m_program.link())
+        exit(EXIT_FAILURE);
+}
+
+void Cube::draw(const QMatrix4x4& viewProjectionMatrix)
+{
+    m_program.bind();
+
+    m_program.setUniformValue("viewProjectionMatrix", viewProjectionMatrix);
+
     m_arrayBuffer.bind();
     int vertLoc = 0;
-    program.enableAttributeArray(vertLoc);
-    program.setAttributeBuffer(vertLoc, GL_FLOAT, 0, 3, sizeof(VertexData));
+    m_program.enableAttributeArray(vertLoc);
+    m_program.setAttributeBuffer(vertLoc, GL_FLOAT, 0, 3, sizeof(cubeVertices[0]));
     m_arrayBuffer.release();
 
     m_instanceBuf.bind();
@@ -48,25 +63,31 @@ void Cube::draw(QOpenGLShaderProgram& program)
     int offset = 0;
 
     int centerLoc = 1;
-    program.enableAttributeArray(centerLoc);
-    program.setAttributeBuffer(centerLoc, GL_FLOAT, offset, 3, sizeof(CubeInstance));
+    m_program.enableAttributeArray(centerLoc);
+    m_program.setAttributeBuffer(centerLoc, GL_FLOAT, offset, 3, sizeof(CubeInstance));
     glVertexAttribDivisor(centerLoc, 1);
     offset += 3 * sizeof(float);
 
     int modelMatLoc = 2;
     for (int i = 0; i < 4; i++) {
-        program.enableAttributeArray(modelMatLoc + i);
-        program.setAttributeBuffer(modelMatLoc + i, GL_FLOAT, offset, 4, sizeof(CubeInstance));
+        m_program.enableAttributeArray(modelMatLoc + i);
+        m_program.setAttributeBuffer(modelMatLoc + i, GL_FLOAT, offset, 4, sizeof(CubeInstance));
         glVertexAttribDivisor(modelMatLoc + i, 1);
-
         offset += 4 * sizeof(float);
     }
 
     m_instanceBuf.release();
 
     m_indexBuffer.bind();
-    glDrawElementsInstanced(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_BYTE, 0, m_instances.size());
+    glDrawElementsInstanced(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(cubeIndices[0]), GL_UNSIGNED_BYTE, 0, m_instances.size());
     m_indexBuffer.release();
+
+    m_program.disableAttributeArray(vertLoc);
+    m_program.disableAttributeArray(centerLoc);
+    for (int i = 0; i < 4; i++)
+        m_program.disableAttributeArray(modelMatLoc + i);
+
+    m_program.release();
 }
 
 void Cube::addInstance(const CubeInstance& instance)

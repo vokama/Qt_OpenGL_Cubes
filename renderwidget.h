@@ -13,6 +13,7 @@
 
 #include "camera.h"
 #include "cube.h"
+#include "worldaxis.h"
 
 enum moveKeys {
     keyFwd =   1,
@@ -48,6 +49,7 @@ private slots:
 
 public:
     Cube *m_cube;
+    WorldAxis *m_waxis;
 
 private:
     Camera camera;
@@ -55,7 +57,6 @@ private:
     QMatrix4x4 m_projectionMatrix;
     QMatrix4x4 m_modelMatrix;
     QMatrix4x4 m_viewMatrix;
-    QOpenGLShaderProgram m_program;
 
     time_t renderTime;
     int framesCount = 0;

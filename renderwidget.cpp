@@ -33,8 +33,8 @@ void RenderWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    initShaders();
-    m_cube = new Cube(QVector3D(5, 5, 5));
+    m_cube = new Cube();
+    m_waxis = new WorldAxis();
     renderTime = time(NULL);
 }
 
@@ -52,36 +52,17 @@ void RenderWidget::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //WorldAxis worldAxis;
-
-    //worldAxis.draw();
-
     m_viewMatrix.setToIdentity();
     m_viewMatrix = camera.move(m_camPos) * m_viewMatrix;
     m_viewMatrix = camera.rotate(m_camTurn) * m_viewMatrix;
 
-    m_program.setUniformValue("qt_ViewProjectionMatrix", m_projectionMatrix * m_viewMatrix);
-
-    m_cube->draw(m_program);
+    QMatrix4x4 viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+    m_waxis->draw(viewProjectionMatrix);
+    m_cube->draw(viewProjectionMatrix);
 
     framesCount++;
 
     update();
-}
-
-void RenderWidget::initShaders()
-{
-    if (!m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex.vert"))
-        close();
-
-    if (!m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment.frag"))
-        close();
-
-    if (!m_program.link())
-        close();
-
-    if (!m_program.bind())
-        close();
 }
 
 void RenderWidget::mousePressEvent(QMouseEvent *event)

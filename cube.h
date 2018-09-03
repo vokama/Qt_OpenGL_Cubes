@@ -40,10 +40,9 @@ struct CubeInstance
 class Cube : QOpenGLFunctions_3_3_Core
 {
 public:
-    Cube(QVector3D center = QVector3D(0, 0, 0), QVector3D rotation = QVector3D(0, 0, 0), float dimension = 1);
+    Cube();
     ~Cube();
 
-    QOpenGLTexture *m_texture = nullptr;
     QOpenGLBuffer m_arrayBuffer;
     QOpenGLBuffer m_indexBuffer;
     QOpenGLBuffer m_instanceBuf;
@@ -52,13 +51,12 @@ public:
     void removeInstance(int idx);
     void selectInstance(int idx);
 
-    void draw(QOpenGLShaderProgram& program);
+    void draw(const QMatrix4x4& viewProjectionMatrix);
 
 private:
-    QVector3D m_center;
-    QVector3D m_rotation;
-    float m_dimension;
+    void initShaders();
 
+    QOpenGLShaderProgram m_program;
     std::vector<CubeInstance> m_instances;
     int m_instanceBufSize = 128 * sizeof(m_instances[0]);
 };

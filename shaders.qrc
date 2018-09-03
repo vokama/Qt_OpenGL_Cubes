@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>vertex.vert</file>
+        <file>cube.vert</file>
         <file>fragment.frag</file>
+        <file>waxis.vert</file>
     </qresource>
 </RCC>

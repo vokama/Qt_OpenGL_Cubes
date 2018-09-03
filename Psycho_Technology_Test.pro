@@ -44,3 +44,5 @@ FORMS += \
 
 RESOURCES += \
     shaders.qrc
+
+DISTFILES +=
