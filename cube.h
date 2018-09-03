@@ -50,8 +50,13 @@ public:
     void addInstance(const CubeInstance& instance);
     void removeInstance(int idx);
     void selectInstance(int idx);
+    void setInstanceRotation(int idx, const QMatrix4x4& rot);
+    void moveInstance(int idx);
+
+    const CubeInstance& getInstance(int idx);
 
     void draw(const QMatrix4x4& viewProjectionMatrix);
+
 
 private:
     void initShaders();

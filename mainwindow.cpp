@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->CubesList, SIGNAL(currentRowChanged(int)),
                      this, SLOT(selectObject(int)));
     QObject::connect(ui->RemoveObject, SIGNAL(clicked()), this, SLOT(removeObject()));
+    QObject::connect(ui->RotateObject, SIGNAL(clicked()), this, SLOT(rotateObject()));
 
     srand(time(NULL));
 }
@@ -56,16 +57,9 @@ void MainWindow::addObject()
 
 #define VEC_TO_STR(vec) QString("%1  %2  %3").arg((vec)[0]).arg((vec)[1]).arg((vec)[2])
 
-void MainWindow::selectObject(int row)
+void MainWindow::refreshObjectInfo(const QListWidgetItem *object)
 {
-    if (row < 0)
-        return;
-
-    m_viewport->m_cube->selectInstance(row);
-
-    QListWidgetItem *curObj = ui->CubesList->item(row);
-
-    QList<QVariant> displayData = curObj->data(QListWidgetItem::UserType).toList();
+    QList<QVariant> displayData = object->data(QListWidgetItem::UserType).toList();
 
     QVector3D center = qvariant_cast<QVector3D>(displayData.at(0));
     ui->CenterValue->setText(VEC_TO_STR(center));
@@ -80,6 +74,17 @@ void MainWindow::selectObject(int row)
     ui->Vertex8Value->setText(VEC_TO_STR(qvariant_cast<QVector3D>(displayData.at(8))));
 }
 
+
+void MainWindow::selectObject(int row)
+{
+    if (row < 0)
+        return;
+
+    m_viewport->m_cube->selectInstance(row);
+
+    refreshObjectInfo(ui->CubesList->item(row));
+}
+
 void MainWindow::removeObject()
 {
     int row = ui->CubesList->currentRow();
@@ -89,4 +94,31 @@ void MainWindow::removeObject()
     m_viewport->m_cube->removeInstance(row);
 
     delete ui->CubesList->item(row);
+}
+
+void MainWindow::rotateObject()
+{
+    int row = ui->CubesList->currentRow();
+    if (row < 0)
+        return;
+
+    QListWidgetItem *cubeItem = ui->CubesList->item(row);
+
+    QMatrix4x4 rot;
+    rot.rotate(10.0f, 1.0f, 0.0f, 0.0f);
+
+    CubeInstance inst = m_viewport->m_cube->getInstance(row);
+    rot = rot * inst.rotation;
+
+    m_viewport->m_cube->setInstanceRotation(row, rot);
+
+    QList<QVariant> displayData;
+    displayData.append(inst.center);
+    for (size_t i = 0; i < cubeVertexCount; i++) {
+        displayData.append(inst.center + rot * cubeVertices[i]);
+    }
+
+    cubeItem->setData(QListWidgetItem::UserType, displayData);
+
+    refreshObjectInfo(cubeItem);
 }

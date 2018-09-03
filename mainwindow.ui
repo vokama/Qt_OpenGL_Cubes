@@ -267,7 +267,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="TransformObject">
+        <widget class="QPushButton" name="MoveObject">
          <property name="text">
           <string>Передвинуть объект</string>
          </property>

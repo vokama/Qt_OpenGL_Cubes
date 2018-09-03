@@ -91,6 +91,14 @@ void Cube::draw(const QMatrix4x4& viewProjectionMatrix)
     m_program.release();
 }
 
+static void update_VRAM_Range(QOpenGLBuffer& buf, int offset, int size, void *source)
+{
+    auto bufPtr = buf.mapRange(offset, size,
+                    QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
+    memcpy(bufPtr, source, size);
+    buf.unmap();
+}
+
 void Cube::addInstance(const CubeInstance& instance)
 {
     m_instances.push_back(instance);
@@ -101,12 +109,10 @@ void Cube::addInstance(const CubeInstance& instance)
         m_instanceBufSize *= 2;
         m_instanceBuf.allocate(m_instances.data(), m_instanceBufSize);
     } else {
-        auto bufPtr = m_instanceBuf.mapRange(
-                    (m_instances.size() - 1) * sizeof(m_instances[0]),
-                    sizeof(m_instances[0]),
-                    QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
-        memcpy(bufPtr, &(m_instances.back()), sizeof(m_instances.back()));
-        m_instanceBuf.unmap();
+        update_VRAM_Range(m_instanceBuf,
+                (m_instances.size() - 1) * sizeof(m_instances[0]),
+                sizeof(m_instances[0]),
+                &(m_instances.back()));
     }
 
     m_instanceBuf.release();
@@ -123,11 +129,10 @@ void Cube::removeInstance(int idx)
 
     m_instanceBuf.bind();
 
-    auto bufPtr = m_instanceBuf.mapRange(idx * sizeof(m_instances[0]),
-                                         (m_instances.size() - idx) * sizeof(m_instances[0]),
-                                         QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
-    memcpy(bufPtr, &(m_instances[idx]), (m_instances.size() - idx) * sizeof(m_instances[0]));
-    m_instanceBuf.unmap();
+    update_VRAM_Range(m_instanceBuf,
+            idx * sizeof(m_instances[0]),
+            (m_instances.size() - idx) * sizeof(m_instances[0]),
+            &(m_instances[idx]));
 
     m_instanceBuf.release();
 }
@@ -135,4 +140,28 @@ void Cube::removeInstance(int idx)
 void Cube::selectInstance(int idx)
 {
     m_highlightedInst = idx;
+}
+
+const CubeInstance& Cube::getInstance(int idx)
+{
+    return m_instances[idx];
+}
+
+void Cube::setInstanceRotation(int idx, const QMatrix4x4& rot)
+{
+    m_instances[idx].rotation = rot;
+
+    m_instanceBuf.bind();
+
+    update_VRAM_Range(m_instanceBuf,
+            idx * sizeof(m_instances[0]) + offsetof(CubeInstance, rotation),
+            sizeof(QMatrix4x4),
+            &(m_instances[idx].rotation));
+
+    m_instanceBuf.release();
+}
+
+void Cube::moveInstance(int idx)
+{
+
 }

@@ -22,8 +22,11 @@ public slots:
     void addObject();
     void selectObject(int row);
     void removeObject();
+    void rotateObject();
 
 private:
+    void refreshObjectInfo(const QListWidgetItem *object);
+
     Ui::MainWindow *ui;
 
     RenderWidget *m_viewport;
